@@ -9,8 +9,6 @@ class WearableManager {
   int counter = 0;
   int off = 1;
 
-  Hud hud;
-
   WearableManager() {
   }
 

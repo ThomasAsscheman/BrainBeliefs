@@ -1,10 +1,4 @@
-import ddf.minim.*;
-import ddf.minim.effects.*;
-import processing.sound.*;
-Minim minim;
-AudioSample[] bell = new AudioSample[5];
-AudioPlayer buzz;
-
+//Global variables
 Hud hud;
 StartScreen startScreen;
 Graph graph;
@@ -14,6 +8,7 @@ WearableManager wearableManager;
 AudioManager audioManager;
 Smoother smoother;
 Target target;
+BaselineProtocol bp;
 
 boolean withSerial = false;
 
@@ -22,24 +17,10 @@ int state = 2;
 public boolean gotOSC = false;
 public float oscIn = 0;
 
-
 public float tbVal = 0;
 float tbMin = -0.5;
 float tbMax = 1.5;
 public float displayPos;
-
-
-public int amount = 8;
-public int blockNum;
-public int blockSize;
-public int activeBlock;
-public int lastActiveBlock;
-public int colorFade = 150;
-public int fadeMax = 200;
-public int fadeMin = 100;
-
-
-
 
 void setup() {
   fullScreen();
@@ -53,22 +34,20 @@ void setup() {
   graph = new Graph();
   receiveOSC = new ReceiveOSC();
   wearableManager = new WearableManager();
-  audioManager = new AudioManager();
+  audioManager = new AudioManager(this);
   smoother = new Smoother();
   target = new Target();
-
-  minim = new Minim(this);
-  for (int i = 0; i < 5; i++) {
-    bell[i] = minim.loadSample("bell" + i + ".mp3");
-  }
-  buzz = minim.loadFile("water1.mp3");
-  buzz.loop();
 
   if (withSerial) {
     sendSerial = new SendSerial();
     serialPort = new Serial(this, portName, 9600);
     sendSerial.serialMessage(0, 0, 0, 0, 0);//om de neopixel te resetten en de vibratie motor op stil
   }
+  
+  bp = new BaselineProtocol(this);
+  
+  //move to Baseline_started
+  bp.ProceedState();
 }
 
 
@@ -101,4 +80,26 @@ void stateManager() {
 
 void mousePressed() {
   oscIn = 0;
+}
+
+void OnFeedbackValue(float value)
+{
+  print(value);
+}
+
+void OnStateChange(ApplicationState.State s)
+{
+    print("glob state changed to: " + s );
+
+    if (s == ApplicationState.State.Baseline_complete)
+    {
+      print("baseline complete!");
+      //bp.ProceedState();
+    }
+
+    if (s == ApplicationState.State.Feedback_complete)
+    {
+      print("feedback complete!");
+      //bp.ProceedState();
+    }
 }
