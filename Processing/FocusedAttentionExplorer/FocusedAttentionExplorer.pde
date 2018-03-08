@@ -15,7 +15,7 @@ AudioManager audioManager;
 Smoother smoother;
 Target target;
 
-boolean withSerial = true;
+boolean withSerial = false;
 
 int state = 2;
 
@@ -67,7 +67,7 @@ void setup() {
   if (withSerial) {
     sendSerial = new SendSerial();
     serialPort = new Serial(this, portName, 9600);
-    sendSerial.serialMessage(0, 0, 0, 0, 0);
+    sendSerial.serialMessage(0, 0, 0, 0, 0);//om de neopixel te resetten en de vibratie motor op stil
   }
 }
 
@@ -77,7 +77,7 @@ void draw() {
   stateManager();
   if (receiveOSC.recieving == false) displayPos = mouseY;
   else {
-    displayPos = map(tbVal, tbMin, tbMax, 0, height);
+    displayPos = map(tbVal, tbMin, tbMax, 0, height);//tbVal is the smoothed value
     if (displayPos < 0) displayPos = 0;
   }
 }
@@ -90,7 +90,7 @@ void stateManager() {
   case 2:
     hud.activate();
     graph.activate();
-    //receiveOSC.oscSwitch();
+    receiveOSC.oscSwitch();
     wearableManager.activate();
     audioManager.activate();
     smoother.activate();

@@ -17,7 +17,7 @@ class WearableManager {
   void activate() {
     if (withSerial) {
       counter++;
-      if (counter >= 4) {
+      if (counter >= 4) {//zodat de neopixel niet gaat flippen
 
         if (lastActiveBlock < activeBlock) {
           vibrationVal = 2;

@@ -1,3 +1,4 @@
+//interpoleert het binnenkomende signaal om het minder stapperig te maken
 class Smoother {
   
   float oscAttValue;

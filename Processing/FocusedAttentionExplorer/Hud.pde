@@ -23,8 +23,8 @@ class Hud {
   void blocks() {
     noStroke();
     for (int i = 0; i < height; i+= blockSize) {
-      if (i < height/2) fill(map(i, 0, height/2, 255, 0), 10, 10); 
-      else /*if (i >= height/2)*/ fill(0, map(i, height/2, height, 0, 20), map(i, height/2, height, 0, 25));
+      if (i < height/2) fill(map(i, 0, height/2, 255, 0), 10, 10); //map de kleur van rood naar volledig donker voor de bovenste helft
+      else /*if (i >= height/2)*/ fill(0, map(i, height/2, height, 0, 20), map(i, height/2, height, 0, 25));//map van zwart naar een klein beetje blauw
       rect(0, i, width, blockSize);
     }
   }

@@ -2,7 +2,7 @@ import processing.serial.*;
 public Serial serialPort;
 
 
-public String portName = "COM9";
+public String portName = "COM7";
 
 public static final char HEADER    = 'H';
 public static final char A_TAG = 'M';
@@ -14,6 +14,9 @@ class SendSerial {
   SendSerial() {
   }  
 
+  /*
+  
+  */
   void serialMessage(int a, int b, int c, int d, int e) {
     serialPort.write(HEADER);
     serialPort.write(A_TAG);

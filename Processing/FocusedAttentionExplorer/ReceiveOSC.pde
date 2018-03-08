@@ -30,8 +30,4 @@ class ReceiveOSC {
     if (oscIn == 0) recieving = false;
     else recieving = true;
   }
-  
-  void smoother(){
-    
-  }
 }
