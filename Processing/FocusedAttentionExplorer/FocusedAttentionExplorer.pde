@@ -3,14 +3,13 @@ import netP5.*;
 
 //Global variables
 Hud hud;
-StartScreen startScreen;
 Graph graph;
 SendSerial sendSerial;
 WearableManager wearableManager;
 AudioManager audioManager;
 Smoother smoother;
-Target target;
 BaselineProtocol bp;
+PFont userfont; 
 
 boolean withSerial = false;
 boolean withMouse = false;
@@ -24,17 +23,13 @@ public float displayPos;
 void setup() {
   //fullScreen();
   size(1080, 640);
-  noCursor();
-  frameRate(30);
-  //displayPos = height/2;
-
-  startScreen = new StartScreen();
+  frameRate(30);  
+  userfont = createFont("Arial",16,true);
   hud = new Hud();
   graph = new Graph();
   wearableManager = new WearableManager();
   audioManager = new AudioManager(this);
   smoother = new Smoother();
-  target = new Target();
 
   if (withSerial) {
     sendSerial = new SendSerial();
@@ -45,25 +40,54 @@ void setup() {
   bp = new BaselineProtocol(this);
 }
 
+//just a quick method to show something on the screen
+void displayUserMessage(String message)
+{
+    textAlign(CENTER, CENTER);
+    textFont(userfont,32);
+    fill(255);
+    text(message,width/2,height/2);
+}
+
+//used to proceed to the next state
+void mouseClicked()
+{
+  switch(bp.p.getCurrentState()) {
+  case Init:
+    bp.ProceedState();//click to continue
+    break;
+  case Baseline_recording:
+    break;
+  case Baseline_complete:
+    bp.ProceedState();//click to continue
+    break;
+  case Feedback_recording://this is the actual game
+    break;
+  case Feedback_complete:
+    bp.ProceedState();//click to continue
+    break;
+  }
+}
 
 void draw() {
-  background(255);
+  background(0);
 
   switch(bp.p.getCurrentState()) {
   case Init:
-    println("TODO Implement button to start");
-    //move to Baseline_started
-    bp.ProceedState();
+    cursor();
+    displayUserMessage("Klik op het scherm om te starten met de baseline meting.");
     break;
   case Baseline_recording:
-    //don't show anything, TODO: show a plus sign in the middle of the screen
-    //this state will automatically transition to complete
+    noCursor();
+    displayUserMessage("+");
     break;
   case Baseline_complete:
-    print("TODO Implement button to continue");
+    cursor();
+    displayUserMessage("Baseline meting voltooid! Klik op het scherm om door te gaan.");
     bp.ProceedState();
     break;
   case Feedback_recording://this is the actual game
+    noCursor();
     hud.activate();
     graph.activate();
     wearableManager.activate();
@@ -72,14 +96,17 @@ void draw() {
       displayPos = mouseY;
     } else {
       tbVal = smoother.smooth(tbVal);
-      displayPos = map(tbVal, tbMin, tbMax, 0, height);//tbVal is the smoothed value
+      //tbVal is the smoothed, which keeps drawing the line 
+      //in the current direction if there are no new values
+      
+      //TODO: the center of the screen should represent be the mean of the baseline measurement.
+      displayPos = map(tbVal, tbMin, tbMax, 0, height);
       if (displayPos < 0) displayPos = 0;
     }
     break;
   case Feedback_complete:
-    print("FINISHED; TODO Implement button to reset");
-    exit();
-    //bp.ProceedState();
+    cursor();
+    displayUserMessage("Klaar! Klik op het scherm om opnieuw te beginnen.");
     break;
   }
 }
