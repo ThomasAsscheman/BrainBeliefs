@@ -13,9 +13,9 @@ class Smoother {
   int oldAttTime = millis();
   int newAttTime = millis();
   int deltaAttTime = 1;
-
-
+  
   boolean gotAttValue = false;
+  boolean dirty = false;//set to true every time there is a new feedback value
 
   Smoother() {
     oldAttValue = oscAttValue;
@@ -28,13 +28,18 @@ class Smoother {
     deltaAttValue = newAttValue-oldAttValue;
     deltaAttTime=newAttTime-oldAttTime;
   }
+  
+  void setDirty()
+  {
+    this.dirty = true;
+  }
 
-  void activate() {
+  float smooth(float oscIn) {
 
     oscAttValue = oscIn;
 
-    if (gotOSC) {
-      gotOSC = false;
+    if (this.dirty) {
+      this.dirty = false;
       oldAttValue = newAttValue;
       newAttValue = oscAttValue;
       deltaAttValue = newAttValue-oldAttValue;
@@ -51,6 +56,6 @@ class Smoother {
     }
     thisAttValue = oldAttValue+ (attRatio* deltaAttValue);
     
-    tbVal = thisAttValue;
+    return thisAttValue;
   }
 }

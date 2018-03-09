@@ -1,8 +1,10 @@
+import oscP5.*;
+import netP5.*;
+
 //Global variables
 Hud hud;
 StartScreen startScreen;
 Graph graph;
-ReceiveOSC receiveOSC;
 SendSerial sendSerial;
 WearableManager wearableManager;
 AudioManager audioManager;
@@ -11,20 +13,17 @@ Target target;
 BaselineProtocol bp;
 
 boolean withSerial = false;
+boolean withMouse = false;
 
-int state = 2;
+float tbVal = 0;//current smoothed value
 
-public boolean gotOSC = false;
-public float oscIn = 0;
-
-public float tbVal = 0;
 float tbMin = -0.5;
 float tbMax = 1.5;
 public float displayPos;
 
 void setup() {
-  fullScreen();
-  //size(1080, 640);
+  //fullScreen();
+  size(1080, 640);
   noCursor();
   frameRate(30);
   //displayPos = height/2;
@@ -32,7 +31,6 @@ void setup() {
   startScreen = new StartScreen();
   hud = new Hud();
   graph = new Graph();
-  receiveOSC = new ReceiveOSC();
   wearableManager = new WearableManager();
   audioManager = new AudioManager(this);
   smoother = new Smoother();
@@ -43,63 +41,59 @@ void setup() {
     serialPort = new Serial(this, portName, 9600);
     sendSerial.serialMessage(0, 0, 0, 0, 0);//om de neopixel te resetten en de vibratie motor op stil
   }
-  
+
   bp = new BaselineProtocol(this);
-  
-  //move to Baseline_started
-  bp.ProceedState();
 }
 
 
 void draw() {
   background(255);
-  stateManager();
-  if (receiveOSC.recieving == false) displayPos = mouseY;
-  else {
-    displayPos = map(tbVal, tbMin, tbMax, 0, height);//tbVal is the smoothed value
-    if (displayPos < 0) displayPos = 0;
-  }
-}
 
-void stateManager() {
-  switch(state) {
-  case 1:
-    startScreen.activate();
+  switch(bp.p.getCurrentState()) {
+  case Init:
+    println("TODO Implement button to start");
+    //move to Baseline_started
+    bp.ProceedState();
     break;
-  case 2:
+  case Baseline_recording:
+    //don't show anything, TODO: show a plus sign in the middle of the screen
+    //this state will automatically transition to complete
+    break;
+  case Baseline_complete:
+    print("TODO Implement button to continue");
+    bp.ProceedState();
+    break;
+  case Feedback_recording://this is the actual game
     hud.activate();
     graph.activate();
-    receiveOSC.oscSwitch();
     wearableManager.activate();
     audioManager.activate();
-    smoother.activate();
+    if (withMouse) { 
+      displayPos = mouseY;
+    } else {
+      tbVal = smoother.smooth(tbVal);
+      displayPos = map(tbVal, tbMin, tbMax, 0, height);//tbVal is the smoothed value
+      if (displayPos < 0) displayPos = 0;
+    }
+    break;
+  case Feedback_complete:
+    print("FINISHED; TODO Implement button to reset");
+    exit();
+    //bp.ProceedState();
     break;
   }
 }
 
-
-void mousePressed() {
-  oscIn = 0;
-}
-
+//fires every time there is a new value
 void OnFeedbackValue(float value)
 {
-  print(value);
+  this.tbVal = value;
+  this.smoother.setDirty();
 }
 
+//fires every time there is a state change, 
+//just for information, since the state gets read on every frame.
 void OnStateChange(ApplicationState.State s)
 {
-    print("glob state changed to: " + s );
-
-    if (s == ApplicationState.State.Baseline_complete)
-    {
-      print("baseline complete!");
-      //bp.ProceedState();
-    }
-
-    if (s == ApplicationState.State.Feedback_complete)
-    {
-      print("feedback complete!");
-      //bp.ProceedState();
-    }
+  print("glob state changed to: " + s );
 }
