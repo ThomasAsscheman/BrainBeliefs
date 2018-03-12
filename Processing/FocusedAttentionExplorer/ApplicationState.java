@@ -12,7 +12,9 @@ public class ApplicationState
         Baseline_recording,
         Baseline_complete,
         Feedback_recording,
-        Feedback_complete
+        Feedback_complete,
+        Reading_task,
+        Reading_task_complete
     }
 
     //Next just proceeds to the next state, our machine is very simple and linear
@@ -71,7 +73,9 @@ public class ApplicationState
             transitions.put( new StateTransition(State.Baseline_recording, Command.Next), State.Baseline_complete );
             transitions.put( new StateTransition(State.Baseline_complete, Command.Next), State.Feedback_recording );
             transitions.put( new StateTransition(State.Feedback_recording, Command.Next), State.Feedback_complete );
-            transitions.put( new StateTransition(State.Feedback_complete, Command.Next), State.Init );
+            transitions.put( new StateTransition(State.Feedback_complete, Command.Next), State.Reading_task );
+            transitions.put( new StateTransition(State.Reading_task, Command.Next), State.Reading_task_complete );
+            transitions.put( new StateTransition(State.Reading_task_complete, Command.Next), State.Init);
         }
 
         public State GetNext(Command command) throws Exception

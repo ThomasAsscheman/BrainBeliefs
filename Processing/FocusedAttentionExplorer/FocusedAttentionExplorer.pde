@@ -64,8 +64,12 @@ void mouseClicked()
   case Feedback_recording://this is the actual game
     break;
   case Feedback_complete:
-    bp.ProceedState();//click to continue
+    bp.ProceedState();//click to continue to reading task
     break;
+  case Reading_task:
+    break;
+  case Reading_task_complete:
+    bp.ProceedState();//click to restart
   }
 }
 
@@ -79,7 +83,8 @@ void draw() {
     break;
   case Baseline_recording:
     noCursor();
-    displayUserMessage("+");
+    hud.blocks();
+    //displayUserMessage("+");
     break;
   case Baseline_complete:
     cursor();
@@ -106,7 +111,15 @@ void draw() {
     break;
   case Feedback_complete:
     cursor();
-    displayUserMessage("Klaar! Klik op het scherm om opnieuw te beginnen.");
+    displayUserMessage("Klaar! Klik op het scherm om verder te gaan met de leesopdracht.");
+    break;
+  case Reading_task:
+    hud.blocks();
+    displayUserMessage("-----");
+    //TODO balkje dat 3 minuten optelt, onderin scherm.
+    break;
+  case Reading_task_complete:
+    displayUserMessage("Klaar! Klik op het scherm om helemaal opnieuw te beginnen");
     break;
   }
 }
@@ -122,5 +135,5 @@ void OnFeedbackValue(float value)
 //just for information, since the state gets read on every frame.
 void OnStateChange(ApplicationState.State s)
 {
-  print("glob state changed to: " + s );
+  println("glob state changed to: " + s );
 }
