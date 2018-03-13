@@ -2,7 +2,7 @@ import processing.serial.*;
 public Serial serialPort;
 
 
-public String portName = "COM7";
+public String portName = "COM10";
 
 public static final char HEADER    = 'H';
 public static final char A_TAG = 'M';

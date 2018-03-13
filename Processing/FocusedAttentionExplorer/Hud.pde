@@ -1,3 +1,12 @@
+public int amount = 8;
+public int blockNum;
+public int blockSize;
+public int activeBlock;
+public int lastActiveBlock;
+public int colorFade = 150;
+public int fadeMax = 200;
+public int fadeMin = 100;
+
 class Hud {
 
   
