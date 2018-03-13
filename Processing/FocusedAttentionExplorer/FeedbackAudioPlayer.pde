@@ -2,7 +2,7 @@ import ddf.minim.*;
 import ddf.minim.effects.*;
 import processing.sound.*;
 
-class AudioManager {
+class FeedbackAudioPlayer {
 
   Minim minim;
   AudioSample[] bell = new AudioSample[5];
@@ -10,7 +10,7 @@ class AudioManager {
 
   FocusedAttentionExplorer app;
   
-  AudioManager(FocusedAttentionExplorer app) {
+  FeedbackAudioPlayer(FocusedAttentionExplorer app) {
     this.app = app;
     minim = new Minim(this.app);
     for (int i = 0; i < 5; i++) {
@@ -18,6 +18,7 @@ class AudioManager {
     }
     buzz = minim.loadFile("water1.mp3");
     buzz.loop();
+    buzz.mute();
   }
 
   void activate() {
@@ -27,6 +28,11 @@ class AudioManager {
 
   void triggerBell() {
     bell[activeBlock-1].trigger();
+  }
+  
+  void muteBuzz()
+  {
+    buzz.mute();
   }
 
   void playBuzz() {

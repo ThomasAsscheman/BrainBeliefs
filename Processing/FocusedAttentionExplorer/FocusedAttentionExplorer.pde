@@ -6,7 +6,7 @@ Hud hud;
 Graph graph;
 SendSerial sendSerial;
 WearableManager wearableManager;
-AudioManager audioManager;
+FeedbackAudioPlayer feedbackAudioPlayer;//Audioplayer for the neurofeedback exercise (with the line)
 Smoother smoother;
 BaselineProtocol bp;
 PFont userfont; 
@@ -25,7 +25,10 @@ void setup() {
   hud = new Hud();
   graph = new Graph();
   wearableManager = new WearableManager();
-  audioManager = new AudioManager(this);
+  
+  //setup audioplayer for feedback session, silent at first
+  feedbackAudioPlayer = new FeedbackAudioPlayer(this);
+  
   smoother = new Smoother();
 
   if (withSerial) {
@@ -93,7 +96,7 @@ void draw() {
     hud.activate();
     graph.activate();
     wearableManager.activate();
-    audioManager.activate();
+    feedbackAudioPlayer.activate();
     if (withMouse) { 
       displayPos = mouseY;
     } else {
@@ -141,4 +144,10 @@ void OnFeedbackValue(float value)
 void OnStateChange(ApplicationState.State s)
 {
   println("glob state changed to: " + s );
+  switch(s)
+  {
+    case Feedback_complete:
+      this.feedbackAudioPlayer.muteBuzz();
+      break;
+  }
 }
