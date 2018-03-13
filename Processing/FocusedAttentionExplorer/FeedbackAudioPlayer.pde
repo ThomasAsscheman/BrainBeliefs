@@ -1,7 +1,8 @@
 import ddf.minim.*;
 import ddf.minim.effects.*;
-import processing.sound.*;
+//import processing.sound.*;
 
+//audio player for the main exercise with the line
 class FeedbackAudioPlayer {
 
   Minim minim;

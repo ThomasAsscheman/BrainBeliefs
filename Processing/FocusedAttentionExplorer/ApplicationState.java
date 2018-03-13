@@ -69,6 +69,15 @@ public class ApplicationState
             this.setCurrentState(State.Init);
             
             transitions = new HashMap<StateTransition, State>();
+            
+            //quick setup for just testing reading task, first baseline, then reading task
+            /*transitions.put( new StateTransition(State.Init, Command.Next), State.Baseline_recording);
+            transitions.put( new StateTransition(State.Baseline_recording, Command.Next), State.Baseline_complete );
+            transitions.put( new StateTransition(State.Baseline_complete, Command.Next), State.Reading_task );
+            transitions.put( new StateTransition(State.Reading_task, Command.Next), State.Reading_task_complete );
+            transitions.put( new StateTransition(State.Reading_task_complete, Command.Next), State.Init);*/
+            
+            original setup, first baseline, then feedback exercise, then reading task
             transitions.put( new StateTransition(State.Init, Command.Next), State.Baseline_recording);
             transitions.put( new StateTransition(State.Baseline_recording, Command.Next), State.Baseline_complete );
             transitions.put( new StateTransition(State.Baseline_complete, Command.Next), State.Feedback_recording );
@@ -76,6 +85,7 @@ public class ApplicationState
             transitions.put( new StateTransition(State.Feedback_complete, Command.Next), State.Reading_task );
             transitions.put( new StateTransition(State.Reading_task, Command.Next), State.Reading_task_complete );
             transitions.put( new StateTransition(State.Reading_task_complete, Command.Next), State.Init);
+            
         }
 
         public State GetNext(Command command) throws Exception

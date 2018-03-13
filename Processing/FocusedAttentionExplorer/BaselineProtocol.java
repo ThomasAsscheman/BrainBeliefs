@@ -16,8 +16,8 @@ public class BaselineProtocol {
 
     //timer (now sped up to 10 seconds and 20 seconds for debugging)
     public int BASELINE_INTERVAL = 60000;//should be 1 minute (60000)
-    public int FEEDBACK_INTERVAL = 2 * 60000;//TBD
-    public int READING_INTERVAL = 3 * 60000;//TBD
+    public int FEEDBACK_INTERVAL = 1 * 60000;//TBD
+    public int READING_INTERVAL = 1 * 60000;//TBD
     private Timer timer;
     
     //OSC variables
@@ -94,6 +94,7 @@ public class BaselineProtocol {
             case Baseline_recording:
                 ProcessBaselineValue(theta_beta_index); //<>//
                 break;
+            case Reading_task:
             case Feedback_recording:
                 ProcessFeedbackValue(theta_beta_index);
                 break;

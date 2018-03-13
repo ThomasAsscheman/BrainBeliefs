@@ -7,6 +7,8 @@ Graph graph;
 SendSerial sendSerial;
 WearableManager wearableManager;
 FeedbackAudioPlayer feedbackAudioPlayer;//Audioplayer for the neurofeedback exercise (with the line)
+ReadingAudioPlayer readingAudioPlayer;//Audioplayer for the reading exercise
+
 Smoother smoother;
 BaselineProtocol bp;
 PFont userfont; 
@@ -28,6 +30,7 @@ void setup() {
   
   //setup audioplayer for feedback session, silent at first
   feedbackAudioPlayer = new FeedbackAudioPlayer(this);
+  readingAudioPlayer = new ReadingAudioPlayer(this);
   
   smoother = new Smoother();
 
@@ -110,8 +113,9 @@ void draw() {
     break;
   case Reading_task:
     hud.blocks();
-    displayUserMessage("-----");
-    //TODO balkje dat 3 minuten optelt, onderin scherm.
+    displayUserMessage("Concentreer je op de opdracht...");
+    float concentration = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), 100);
+    readingAudioPlayer.mix(concentration);
     break;
   case Reading_task_complete:
     displayUserMessage("Klaar! Klik op het scherm om helemaal opnieuw te beginnen");
@@ -127,8 +131,10 @@ float map_val_to_screen(float theta_beta_index, float mean, float sd, float scre
    float difference = (theta_beta_index - mean);//absoluut verschil tussen tb index en mean
    float sds = difference / sd;//verschil in termen van sd
    float y = (screen_height / 2) + ((sds/factor) * (screen_height/2));//mapping naar scherm
-   //since the processing coordinate system has 0 at the top of the screen we don't have to flip y
-   //TODO: enforce max/min values
+   
+   if(y > screen_height) y = screen_height;
+   if(y < 0) y = 0;
+   
    return y;
 }
 
@@ -148,6 +154,12 @@ void OnStateChange(ApplicationState.State s)
   {
     case Feedback_complete:
       this.feedbackAudioPlayer.muteBuzz();
+      break;
+    case Reading_task:
+      this.readingAudioPlayer.play();
+      break;
+    case Reading_task_complete:
+      this.readingAudioPlayer.stop();
       break;
   }
 }
