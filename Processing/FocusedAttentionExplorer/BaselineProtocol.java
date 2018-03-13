@@ -29,7 +29,17 @@ public class BaselineProtocol {
     private int count;
     private float sum;
     private double mean;//mean value found during baseline
-
+    
+    public double getMean()
+    {
+      return mean;
+    }
+    
+    public double getSd()
+    {
+      return sd;
+    }
+    
     private double min;//min value found during baseline
     private double max;//max value found during baseline
     private double sd;//standard deviation
@@ -213,15 +223,6 @@ public class BaselineProtocol {
     //do something with a value received during feedback session
     private void ProcessFeedbackValue(float theta_beta_index)
     {
-        //adjust value according to baseline
-        float mean_adjusted = theta_beta_index - (float)mean;//deviation from the mean
-
-        //we normalize for the standard deviation
-        //we scale down the value linear with the sd
-        //smaller sd lead to close to original values
-        //larger sd leads to smaller values, so we dampen the extremes a bit
-        float normalized = ((float)(1 - sd)) * mean_adjusted; 
-
-        fireFeedbackValue(normalized);
+        fireFeedbackValue(theta_beta_index);//just pass it untouched
     }
 }

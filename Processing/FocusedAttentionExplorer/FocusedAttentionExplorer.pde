@@ -1,4 +1,4 @@
-import oscP5.*;
+ import oscP5.*;
 import netP5.*;
 
 //Global variables
@@ -15,9 +15,6 @@ boolean withSerial = false;
 boolean withMouse = false;
 
 float tbVal = 0;//current smoothed value
-
-float tbMin = -0.5;
-float tbMax = 1.5;
 public float displayPos;
 
 void setup() {
@@ -100,12 +97,7 @@ void draw() {
     if (withMouse) { 
       displayPos = mouseY;
     } else {
-      tbVal = smoother.smooth(tbVal);
-      //tbVal is the smoothed, which keeps drawing the line 
-      //in the current direction if there are no new values
-      
-      //TODO: the center of the screen should represent be the mean of the baseline measurement.
-      displayPos = map(tbVal, tbMin, tbMax, 0, height);
+      displayPos = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), height); 
       if (displayPos < 0) displayPos = 0;
     }
     break;
@@ -124,10 +116,23 @@ void draw() {
   }
 }
 
+//map the incoming theta_beta_index value to a y screen coordinate, 
+//taking into account the mean and sd measured during baseline
+float map_val_to_screen(float theta_beta_index, float mean, float sd, float screen_height)
+{
+   int factor = 2;//constante voor het aantal sd's tussen het midden van het scherm en de bovenkant
+   float difference = (theta_beta_index - mean);//absoluut verschil tussen tb index en mean
+   float sds = difference / sd;//verschil in termen van sd
+   float y = (screen_height / 2) + ((sds/factor) * (screen_height/2));//mapping naar scherm
+   //since the processing coordinate system has 0 at the top of the screen we don't have to flip y
+   //TODO: enforce max/min values
+   return y;
+}
+
 //fires every time there is a new value
 void OnFeedbackValue(float value)
 {
-  this.tbVal = value;
+  this.tbVal = smoother.smooth(value);
   this.smoother.setDirty();
 }
 
