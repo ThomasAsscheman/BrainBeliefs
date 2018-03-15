@@ -1,4 +1,4 @@
- import oscP5.*;
+import oscP5.*;
 import netP5.*;
 
 //Global variables
@@ -43,7 +43,7 @@ void setup() {
   bp = new BaselineProtocol(this);
   
   //to skip to a given state in the protocol, for debugging purposes
-  bp.p.setCurrentState(ApplicationState.State.End);
+  //bp.p.setCurrentState(ApplicationState.State.End);
 }
 
 //just a quick method to show something on the screen
