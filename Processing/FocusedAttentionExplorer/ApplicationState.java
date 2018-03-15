@@ -77,7 +77,7 @@ public class ApplicationState
             transitions.put( new StateTransition(State.Reading_task, Command.Next), State.Reading_task_complete );
             transitions.put( new StateTransition(State.Reading_task_complete, Command.Next), State.Init);*/
             
-            original setup, first baseline, then feedback exercise, then reading task
+            //original setup, first baseline, then feedback exercise, then reading task
             transitions.put( new StateTransition(State.Init, Command.Next), State.Baseline_recording);
             transitions.put( new StateTransition(State.Baseline_recording, Command.Next), State.Baseline_complete );
             transitions.put( new StateTransition(State.Baseline_complete, Command.Next), State.Feedback_recording );
