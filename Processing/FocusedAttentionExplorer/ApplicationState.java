@@ -8,13 +8,26 @@ public class ApplicationState
     //these are the states our application can be in
     public enum State
     {
-        Init,
+        Init,//Intro
+        Baseline_start,
         Baseline_recording,
         Baseline_complete,
+        Line_start,
+        Line_recording,
+        Line_complete,
+        Feedback_start,
         Feedback_recording,
         Feedback_complete,
-        Reading_task,
-        Reading_task_complete
+        Focus_tips,
+        Feedback2_start,
+        Feedback2_recording,
+        Feedback2_complete,
+        Feedback3_start,
+        Feedback3_recording,
+        Feedback3_complete,
+        Reading_task_start,
+        Reading_task_recording,
+        End
     }
 
     //Next just proceeds to the next state, our machine is very simple and linear
@@ -58,7 +71,8 @@ public class ApplicationState
         {
           return this._currentState;
         }
-        private void setCurrentState(State state)
+        
+        public void setCurrentState(State state)
         {
           this._currentState = state;
         }
@@ -70,21 +84,20 @@ public class ApplicationState
             
             transitions = new HashMap<StateTransition, State>();
             
-            //quick setup for just testing reading task, first baseline, then reading task
-            /*transitions.put( new StateTransition(State.Init, Command.Next), State.Baseline_recording);
-            transitions.put( new StateTransition(State.Baseline_recording, Command.Next), State.Baseline_complete );
-            transitions.put( new StateTransition(State.Baseline_complete, Command.Next), State.Reading_task );
-            transitions.put( new StateTransition(State.Reading_task, Command.Next), State.Reading_task_complete );
-            transitions.put( new StateTransition(State.Reading_task_complete, Command.Next), State.Init);*/
+            //since all transitions are lineair, no need to spell it out manually
+            //we just follow the order of the State enum
+            State prev = null;
+            for (State state : State.values())
+            {
+                if(prev != null)
+                {
+                  transitions.put ( new StateTransition(prev, Command.Next), state);
+                }
+                prev = state;
+            }
             
-            //original setup, first baseline, then feedback exercise, then reading task
-            transitions.put( new StateTransition(State.Init, Command.Next), State.Baseline_recording);
-            transitions.put( new StateTransition(State.Baseline_recording, Command.Next), State.Baseline_complete );
-            transitions.put( new StateTransition(State.Baseline_complete, Command.Next), State.Feedback_recording );
-            transitions.put( new StateTransition(State.Feedback_recording, Command.Next), State.Feedback_complete );
-            transitions.put( new StateTransition(State.Feedback_complete, Command.Next), State.Reading_task );
-            transitions.put( new StateTransition(State.Reading_task, Command.Next), State.Reading_task_complete );
-            transitions.put( new StateTransition(State.Reading_task_complete, Command.Next), State.Init);
+            //complete the loop
+            transitions.put( new StateTransition(State.End, Command.Next), State.Init);
             
         }
 

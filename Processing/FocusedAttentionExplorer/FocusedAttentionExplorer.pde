@@ -41,11 +41,15 @@ void setup() {
   }
 
   bp = new BaselineProtocol(this);
+  
+  //to skip to a given state in the protocol, for debugging purposes
+  bp.p.setCurrentState(ApplicationState.State.Feedback3_complete);
 }
 
 //just a quick method to show something on the screen
 void displayUserMessage(String message)
 {
+    cursor();
     textAlign(CENTER, CENTER);
     textFont(userfont,32);
     fill(255);
@@ -53,26 +57,27 @@ void displayUserMessage(String message)
 }
 
 //used to proceed to the next state
-void mouseClicked()
+void mouseClicked()//TODO: should be space key
 {
+  print("mouse clicked");
   switch(bp.p.getCurrentState()) {
   case Init:
-    bp.ProceedState();//click to continue
-    break;
-  case Baseline_recording:
-    break;
+  case Baseline_start:
   case Baseline_complete:
+  case Line_start:
+  case Line_complete:
+  case Feedback_start:
+  case Feedback_complete:
+  case Focus_tips:
+  case Feedback2_start:
+  case Feedback2_complete:
+  case Feedback3_start:
+  case Feedback3_complete:
+  case Reading_task_start:
+  case Reading_task_recording://TODO: should be q key!
+  case End:
     bp.ProceedState();//click to continue
     break;
-  case Feedback_recording://this is the actual game
-    break;
-  case Feedback_complete:
-    bp.ProceedState();//click to continue to reading task
-    break;
-  case Reading_task:
-    break;
-  case Reading_task_complete:
-    bp.ProceedState();//click to restart
   }
 }
 
@@ -81,44 +86,70 @@ void draw() {
 
   switch(bp.p.getCurrentState()) {
   case Init:
-    cursor();
-    displayUserMessage("Klik op het scherm om te starten met de baseline meting.");
+    displayUserMessage("Tijdens deze eerste oefening ga je kennis maken met je eigen hersenen. \nMet de elektrode op je hoofd meten we jouw hersenactiviteit. \nDe hersenactiviteit zegt iets over jouw focus op dat moment.");
     break;
-  case Baseline_recording:
+  case Baseline_start:
+    displayUserMessage("Voordat we kunnen beginnen,\n moeten we eerst een rustmeting doen van 1 minuut.\n Probeer je te ontspannen en stil te zitten, \nkijk naar het witte kruisje");
+    break;
+  case Baseline_recording://graph only, no hud!
     noCursor();
-    hud.blocks();
-    //displayUserMessage("+");
+    displayUserMessage("+");
     break;
   case Baseline_complete:
-    cursor();
-    displayUserMessage("Baseline meting voltooid! Klik op het scherm om door te gaan.");
-    bp.ProceedState();
+    displayUserMessage("Bedankt voor het stilzitten, nu kunnen we beginnen!\n Je ziet zo een balletje op en neer bewegen.\n Als het balletje omhoog gaat, heb je meer focus.\n Als het balletje omlaag gaat, heb je minder focus.");
+    break;
+  case Line_start:
+    displayUserMessage("Je zult merken dat jouw hoeveelheid focus steeds verandert,\n dat is normaal.");
+    break;
+  case Line_recording:
+    noCursor();
+    graph.activate();
+  case Line_complete:
+    displayUserMessage("Je hebt net je eigen hersenactiviteit gezien!\n In de volgende oefening\nga je proberen invloed uit te oefenen\n op je eigen hersenactiviteit.\n Het doel is om je zo veel mogelijk te focussen,\n en zo lang mogelijk achter elkaar.");
+    break;
+  case Feedback_start:
+    displayUserMessage("Probeer de lijn zo hoog mogelijk te krijgen en ervaar wat er gebeurt.");
     break;
   case Feedback_recording://this is the actual game
+  case Feedback2_recording:
+  case Feedback3_recording:
     noCursor();
     hud.activate();
     graph.activate();
     wearableManager.activate();
     feedbackAudioPlayer.activate();
-    if (withMouse) { 
-      displayPos = mouseY;
-    } else {
-      displayPos = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), height); 
-      if (displayPos < 0) displayPos = 0;
-    }
     break;
   case Feedback_complete:
-    cursor();
-    displayUserMessage("Klaar! Klik op het scherm om verder te gaan met de leesopdracht.");
+    hud.activate();
+    displayUserMessage("En, kreeg je een beetje controle over je eigen hersenactiviteit?\n Als het nog niet lukte, dan is dat heel normaal,\n je hebt dit immers nog nooit gedaan.\n Als het al wel lukte, weet je ook hoe je dit voor elkaar kreeg?");
     break;
-  case Reading_task:
-    hud.blocks();
-    displayUserMessage("Concentreer je op de opdracht...");
+  case Focus_tips:
+    hud.activate();
+    displayUserMessage("We gaan het nog een keer proberen.\n Iedereen moet een eigen manier vinden om \ncontrole te krijgen over de eigen hersenactiviteit");
+    break;
+  case Feedback2_start:
+    hud.activate();
+    displayUserMessage("We kunnen een paar tips geven:\n (1) Wil het heel graag dus doe heel veel moeite!\n (2) Stel je voor dat je met superkracht het balletje kan bewegen\n (the  Force…");
+    break;
+  case Feedback2_complete:
+    hud.activate();
+    displayUserMessage("Voordat we naar de volgende oefening gaan,\n proberen we een minuut te ontspannen,\n alles even los te laten.");
+    break;
+  case Feedback3_start:
+    hud.activate();
+    displayUserMessage("Straks zie je weer het balletje op en neer gaan.\n Probeer nu eens door je diep te relaxen,\n het balletje omlaag,\n in de blauwe balken te krijgen");
+    break;
+  case Feedback3_complete:
+    //weer zwarte achtergrond
+    displayUserMessage("Dank je wel!");
+    break;
+  case Reading_task_start:
+    displayUserMessage("Je krijgt nu een pagina tekst.\n Probeer je te concentreren en de tekst te lezen.");
+    break;
+  case Reading_task_recording:
+    //zwart scherm
     float concentration = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), 100);
     readingAudioPlayer.mix(concentration);
-    break;
-  case Reading_task_complete:
-    displayUserMessage("Klaar! Klik op het scherm om helemaal opnieuw te beginnen");
     break;
   }
 }
@@ -143,6 +174,12 @@ void OnFeedbackValue(float value)
 {
   this.tbVal = smoother.smooth(value);
   this.smoother.setDirty();
+  
+  if (withMouse) { 
+      displayPos = mouseY;
+   } else {
+      displayPos = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), height); 
+   }
 }
 
 //fires every time there is a state change, 
@@ -155,10 +192,10 @@ void OnStateChange(ApplicationState.State s)
     case Feedback_complete:
       this.feedbackAudioPlayer.muteBuzz();
       break;
-    case Reading_task:
+    case Reading_task_recording:
       this.readingAudioPlayer.play();
       break;
-    case Reading_task_complete:
+    case End:
       this.readingAudioPlayer.stop();
       break;
   }

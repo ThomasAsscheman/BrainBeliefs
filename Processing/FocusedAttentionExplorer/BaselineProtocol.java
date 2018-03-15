@@ -14,10 +14,15 @@ public class BaselineProtocol {
     public NetAddress netAddress;
     public ApplicationState.Process p;
 
-    //timer (now sped up to 10 seconds and 20 seconds for debugging)
-    public int BASELINE_INTERVAL = 60000;//should be 1 minute (60000)
-    public int FEEDBACK_INTERVAL = 1 * 60000;//TBD
-    public int READING_INTERVAL = 1 * 60000;//TBD
+    //time intervals specified in minutes
+    private int MINUTE = 60000;
+    public int BASELINE_INTERVAL = 1;
+    public int LINE_INTERVAL = 1;
+    public int FEEDBACK_INTERVAL = 2;
+    public int FEEDBACK2_INTERVAL = 1;
+    public int FEEDBACK3_INTERVAL = 1;
+    //reading task is indefinite
+    
     private Timer timer;
     
     //OSC variables
@@ -94,8 +99,11 @@ public class BaselineProtocol {
             case Baseline_recording:
                 ProcessBaselineValue(theta_beta_index); //<>//
                 break;
-            case Reading_task:
+            case Line_recording:
             case Feedback_recording:
+            case Feedback2_recording:
+            case Feedback3_recording:
+            case Reading_task_recording:
                 ProcessFeedbackValue(theta_beta_index);
                 break;
         }
@@ -104,6 +112,7 @@ public class BaselineProtocol {
     //called from UI or timers to proceed to move to the next stage
     public void ProceedState()
     {
+      System.out.println("ProceedState called");
         try{
           
           p.MoveNext(ApplicationState.Command.Next); //<>//
@@ -114,22 +123,21 @@ public class BaselineProtocol {
                 Init();
                 break;
             case Baseline_recording:
-                StartBaselineTimer();
+                StartTimer(BASELINE_INTERVAL);
                 break;
             case Baseline_complete:
                 OnBaselineComplete();
                 break;
+            case Line_recording:
+                StartTimer(LINE_INTERVAL);
             case Feedback_recording:
-                StartFeedbackTimer();
+                StartTimer(FEEDBACK_INTERVAL);
                 break;
-            case Feedback_complete:
-                OnFeedbackComplete();
+            case Feedback2_recording:
+                StartTimer(FEEDBACK2_INTERVAL);
                 break;
-            case Reading_task:
-                StartReadingTimer();
-                break;
-            case Reading_task_complete:
-                OnReadingTaskComplete();
+            case Feedback3_recording:
+                StartTimer(FEEDBACK3_INTERVAL);
                 break;
           }
 
@@ -153,24 +161,11 @@ public class BaselineProtocol {
       }
     }
     
-    private void StartBaselineTimer()
+    private void StartTimer(int minutes)
     {        
+        int interval = minutes * MINUTE;
         timer = new Timer();
-        timer.schedule(new FeedbackTimerTask(), BASELINE_INTERVAL);
-    }
-
-    //This timer should automatically 
-    // call Proceed after a minute of collecting baseline data
-    private void StartFeedbackTimer()
-    {
-      timer = new Timer();
-      timer.schedule(new FeedbackTimerTask(), FEEDBACK_INTERVAL);
-    }
-    
-    private void StartReadingTimer()
-    {
-      timer = new Timer();
-      timer.schedule(new FeedbackTimerTask(), READING_INTERVAL);
+        timer.schedule(new FeedbackTimerTask(), interval);
     }
 
     //When the baseline is complete, we show some stuff we have calculated
@@ -190,17 +185,6 @@ public class BaselineProtocol {
         sd = s.getStdDev();
 
         System.out.println(String.format("baseline complete,n:%d  m:%f, sd:%f, min:%f, max:%f", count, mean, sd, min, max));
-    }
-
-    //When the feedback is complete we show some stuff about the session
-    private void OnFeedbackComplete()
-    {
-        System.out.println("feedback complete!");
-    }
-    
-    private void OnReadingTaskComplete()
-    {
-      System.out.println("reading task complete!");
     }
 
     //reset all variables to their default
