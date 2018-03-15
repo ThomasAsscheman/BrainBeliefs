@@ -193,7 +193,7 @@ public class BaselineProtocol {
         count = 0;
         sum = 0;
         mean = 0;
-        buffer = new double[(BASELINE_INTERVAL/100) + 100];//extra 100 for safety
+        buffer = new double[(BASELINE_INTERVAL * MINUTE/100) + 100];//extra 100 for safety
     }
 
     //do something with a value received during baseline recording

@@ -43,7 +43,7 @@ void setup() {
   bp = new BaselineProtocol(this);
   
   //to skip to a given state in the protocol, for debugging purposes
-  bp.p.setCurrentState(ApplicationState.State.Feedback3_complete);
+  bp.p.setCurrentState(ApplicationState.State.End);
 }
 
 //just a quick method to show something on the screen
@@ -74,10 +74,42 @@ void mouseClicked()//TODO: should be space key
   case Feedback3_start:
   case Feedback3_complete:
   case Reading_task_start:
-  case Reading_task_recording://TODO: should be q key!
+  //case Reading_task_recording://TODO: should be q key!
   case End:
     bp.ProceedState();//click to continue
     break;
+  }
+}
+
+void keyPressed()
+{
+  switch(bp.p.getCurrentState())
+  {
+    case Reading_task_recording:
+      if(key == 'q')
+      {  
+        bp.ProceedState();
+      }
+      break;
+    case Init:
+    case Baseline_start:
+    case Baseline_complete:
+    case Line_start:
+    case Line_complete:
+    case Feedback_start:
+    case Feedback_complete:
+    case Focus_tips:
+    case Feedback2_start:
+    case Feedback2_complete:
+    case Feedback3_start:
+    case Feedback3_complete:
+    case Reading_task_start:
+    case End:
+      if(key == ' ')
+      {
+        bp.ProceedState();
+      }
+      break;
   }
 }
 
@@ -86,7 +118,7 @@ void draw() {
 
   switch(bp.p.getCurrentState()) {
   case Init:
-    displayUserMessage("Tijdens deze eerste oefening ga je kennis maken met je eigen hersenen. \nMet de elektrode op je hoofd meten we jouw hersenactiviteit. \nDe hersenactiviteit zegt iets over jouw focus op dat moment.");
+    displayUserMessage("Tijdens deze eerste oefening ga je kennis maken met je eigen hersenen. \nMet de elektrode op je hoofd meten we jouw hersenactiviteit. \nDe hersenactiviteit zegt iets over jouw focus op dat moment.\n\nKlik steeds op spatie om verder te gaan.");
     break;
   case Baseline_start:
     displayUserMessage("Voordat we kunnen beginnen,\n moeten we eerst een rustmeting doen van 1 minuut.\n Probeer je te ontspannen en stil te zitten, \nkijk naar het witte kruisje");
@@ -104,6 +136,7 @@ void draw() {
   case Line_recording:
     noCursor();
     graph.activate();
+    break; 
   case Line_complete:
     displayUserMessage("Je hebt net je eigen hersenactiviteit gezien!\n In de volgende oefening\nga je proberen invloed uit te oefenen\n op je eigen hersenactiviteit.\n Het doel is om je zo veel mogelijk te focussen,\n en zo lang mogelijk achter elkaar.");
     break;
@@ -129,7 +162,7 @@ void draw() {
     break;
   case Feedback2_start:
     hud.activate();
-    displayUserMessage("We kunnen een paar tips geven:\n (1) Wil het heel graag dus doe heel veel moeite!\n (2) Stel je voor dat je met superkracht het balletje kan bewegen\n (the  Force…");
+    displayUserMessage("We kunnen een paar tips geven:\n (1) Wil het heel graag dus doe heel veel moeite!\n (2) Stel je voor dat je met superkracht het balletje kan bewegen\n (the  Force…) ");
     break;
   case Feedback2_complete:
     hud.activate();
@@ -151,7 +184,11 @@ void draw() {
     float concentration = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), 100);
     readingAudioPlayer.mix(concentration);
     break;
+  case End:
+    displayUserMessage("Klik op spatie om overnieuw te beginnen.");
+    break;
   }
+
 }
 
 //map the incoming theta_beta_index value to a y screen coordinate, 
@@ -190,6 +227,8 @@ void OnStateChange(ApplicationState.State s)
   switch(s)
   {
     case Feedback_complete:
+    case Feedback2_complete:
+    case Feedback3_complete:
       this.feedbackAudioPlayer.muteBuzz();
       break;
     case Reading_task_recording:
