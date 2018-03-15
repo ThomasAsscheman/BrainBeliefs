@@ -26,7 +26,6 @@ class Hud {
   void activate() {
     blocks();
     highlight();
-    effortBar();
   }
 
   void blocks() {
@@ -67,7 +66,7 @@ class Hud {
     } else activeBlock = -1;
   }
 
-  void effortBar() {
+  public void effortBar() {
     noStroke();
     fill(barBg);
     rect(100, height - (blockSize/2) - 6, 200, 12);

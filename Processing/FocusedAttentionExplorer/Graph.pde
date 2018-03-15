@@ -25,8 +25,9 @@ class Graph {
   }
 
   void circle() {
-    if(displayPos < height/2) cursorColor = 0;
-    else cursorColor = 255;
+    //if(displayPos < height/2) cursorColor = 0;
+    //else cursorColor = 255;
+    cursorColor = 255;
     stroke(cursorColor);
     noFill();
     strokeWeight(cursorWeight);

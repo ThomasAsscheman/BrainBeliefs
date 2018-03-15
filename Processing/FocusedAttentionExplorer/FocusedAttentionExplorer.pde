@@ -43,7 +43,7 @@ void setup() {
   bp = new BaselineProtocol(this);
   
   //to skip to a given state in the protocol, for debugging purposes
-  //bp.p.setCurrentState(ApplicationState.State.End);
+  //bp.p.setCurrentState(ApplicationState.State.Feedback_recording);
 }
 
 //just a quick method to show something on the screen
@@ -124,8 +124,8 @@ void draw() {
     displayUserMessage("Voordat we kunnen beginnen,\n moeten we eerst een rustmeting doen van 1 minuut.\n Probeer je te ontspannen en stil te zitten, \nkijk naar het witte kruisje");
     break;
   case Baseline_recording://graph only, no hud!
-    noCursor();
     displayUserMessage("+");
+    noCursor();
     break;
   case Baseline_complete:
     displayUserMessage("Bedankt voor het stilzitten, nu kunnen we beginnen!\n Je ziet zo een balletje op en neer bewegen.\n Als het balletje omhoog gaat, heb je meer focus.\n Als het balletje omlaag gaat, heb je minder focus.");
@@ -135,6 +135,7 @@ void draw() {
     break;
   case Line_recording:
     noCursor();
+    UpdateDisplayMapping();
     graph.activate();
     break; 
   case Line_complete:
@@ -147,7 +148,9 @@ void draw() {
   case Feedback2_recording:
   case Feedback3_recording:
     noCursor();
+    UpdateDisplayMapping();
     hud.activate();
+    hud.effortBar();
     graph.activate();
     wearableManager.activate();
     feedbackAudioPlayer.activate();
@@ -183,9 +186,10 @@ void draw() {
     //zwart scherm
     float concentration = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), 100);
     readingAudioPlayer.mix(concentration);
+    noCursor(); 
     break;
   case End:
-    displayUserMessage("Klik op spatie om overnieuw te beginnen.");
+    displayUserMessage("Klik op spatie om opnieuw te beginnen.");
     break;
   }
 
@@ -208,14 +212,19 @@ float map_val_to_screen(float theta_beta_index, float mean, float sd, float scre
 
 //fires every time there is a new value
 void OnFeedbackValue(float value)
-{
-  this.tbVal = smoother.smooth(value);
+{  
+  this.tbVal = value;
   this.smoother.setDirty();
-  
+}
+
+//calculate intermediate graph values
+void UpdateDisplayMapping()
+{
+  this.tbVal = smoother.smooth(this.tbVal);
   if (withMouse) { 
       displayPos = mouseY;
    } else {
-      displayPos = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), height); 
+      displayPos = map_val_to_screen(this.tbVal, (float)bp.getMean(), (float)bp.getSd(), height); 
    }
 }
 
@@ -229,6 +238,7 @@ void OnStateChange(ApplicationState.State s)
     case Feedback_complete:
     case Feedback2_complete:
     case Feedback3_complete:
+    case Reading_task_start:
       this.feedbackAudioPlayer.muteBuzz();
       break;
     case Reading_task_recording:
