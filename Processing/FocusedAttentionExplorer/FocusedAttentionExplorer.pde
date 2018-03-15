@@ -13,15 +13,15 @@ Smoother smoother;
 BaselineProtocol bp;
 PFont userfont; 
 
-boolean withSerial = false;
+boolean withSerial = true;
 boolean withMouse = false;
 
 float tbVal = 0;//current smoothed value
 public float displayPos;
 
 void setup() {
-  //fullScreen();
-  size(1080, 640);
+  fullScreen();
+  //size(1080, 640);
   frameRate(30);  
   userfont = createFont("Arial",16,true);
   hud = new Hud();
