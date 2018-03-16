@@ -43,7 +43,8 @@ void setup() {
   bp = new BaselineProtocol(this);
   
   //to skip to a given state in the protocol, for debugging purposes
-  //bp.p.setCurrentState(ApplicationState.State.Feedback_recording);
+  //bp.setDebugValues(0.5, 0.2);
+  //bp.p.setCurrentState(ApplicationState.State.Reading_task_start);
 }
 
 //just a quick method to show something on the screen
@@ -184,6 +185,7 @@ void draw() {
     break;
   case Reading_task_recording:
     //zwart scherm
+    UpdateDisplayMapping();
     float concentration = map_val_to_screen(tbVal, (float)bp.getMean(), (float)bp.getSd(), 100);
     readingAudioPlayer.mix(concentration);
     noCursor(); 
@@ -217,7 +219,7 @@ void OnFeedbackValue(float value)
   this.smoother.setDirty();
 }
 
-//calculate intermediate graph values
+//calculate intermediate graph values, to be called each frame
 void UpdateDisplayMapping()
 {
   this.tbVal = smoother.smooth(this.tbVal);

@@ -45,6 +45,13 @@ public class BaselineProtocol {
       return sd;
     }
     
+    //to be able to skip the baseline protocol
+    public void setDebugValues(double mean, double sd)
+    {
+      this.mean = mean;
+      this.sd = sd;
+    }
+    
     private double min;//min value found during baseline
     private double max;//max value found during baseline
     private double sd;//standard deviation
